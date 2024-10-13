@@ -50,7 +50,7 @@ def cramer(A,B):
 
 def inversion(A,B):
     n = len(A)
-    coef = [[],[],[]]
+    cof = [[],[],[]]
     for i in range(n):
         for j in range(n):
             nr = []
@@ -61,13 +61,13 @@ def inversion(A,B):
                     if jp == j:
                         continue
                     nr.append(A[ip][jp])
-            coef[i].append((-1)**(i+j)*(nr[0]*nr[3]-nr[1]*nr[2]))
-    adj = transpose(coef)
+            cof[i].append((-1)**(i+j)*(nr[0]*nr[3]-nr[1]*nr[2]))
+    adj = transpose(cof)
     determ = det(A)
     inv = [[adj[i][j] / determ for j in range(n)] for i in range(n)]
     return dot(inv,B)   
 
-A, B  = read('input1.txt')
+A, B  = read('./Tema1/input1.txt')
 print(A)
 print(B)
 print(det(A))
@@ -75,8 +75,11 @@ print(trace(A))
 print(vnorm(B))
 print(transpose(A))
 print(dot(A,B))
-print(cramer(A,B))
-print(inversion(A,B))
+if det(A) == 0:
+    print("This system can't be solved with our 2 methods: determinant is 0")
+else:
+    print(cramer(A,B))
+    print(inversion(A,B))
 
 
         
