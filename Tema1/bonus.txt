@@ -1,0 +1,8 @@
+similarities between cofactor and the provided formula for det A
+
+the formula for det A can be rewritten as:
+det(A) = a11*cof(a11) + a12*cof(a12) + a13*cof(a13)
+where cof(aij) =  the cofactor of the element aij 
+
+While the provided formula uses the first row and it's cofactors to calculate the determinant, we can achieve
+the same det by using any row or any column of A. This is known as the Laplace expansion, or cofactor expansion.
