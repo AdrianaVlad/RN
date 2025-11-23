@@ -87,7 +87,7 @@ def safe_config(args):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", default="cifar100")
-    parser.add_argument("--model", default="resnet26d")
+    parser.add_argument("--model", default="resnest26d")
     parser.add_argument("--epochs", default=50, type=int)
     parser.add_argument("--bs", default=64, type=int)
     parser.add_argument("--lr", default=None, type=float)
@@ -108,8 +108,10 @@ def main():
     parser.add_argument("--mix_alpha", type=float, default=0.5)
     parser.add_argument("--pretrained", type=int, default=0, choices=[0,1])
     parser.add_argument("--target_size", type=int, default=64)
+    parser.add_argument("--early_stop", type=int, default=5)
+    parser.add_argument("--log", type=int, default=1, choices=[0,1])
 
-    args = parser.parse_args()
+    args = parser.parse_args([])
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print("Using:", device)
 
@@ -140,10 +142,10 @@ def main():
         scheduler = StepLR(optimizer, step_size=args.scheduler_step_size, gamma=args.scheduler_gamma)
     elif args.scheduler == "plateau":
         scheduler = ReduceLROnPlateau(optimizer, patience=args.scheduler_patience, factor=args.scheduler_gamma)
+    if(args.log):
+        wandb.init(project="hw3-cifar100_final", config=safe_config(args))
 
-    wandb.init(project="hw3-cifar100_final", config=safe_config(args))
-
-    early_stop = EarlyStopper(patience=args.scheduler_patience+1)
+    early_stop = EarlyStopper(args.early_stop)
     start_time = time.time()
 
     acc = 0.0
@@ -156,8 +158,9 @@ def main():
             test_acc = test(model, test_loader, device, args.use_tta)
 
             print(f"Epoch {epoch}: train={acc:.3f}, test={test_acc:.3f}")
-
-            wandb.log({"train_acc": acc, "test_acc": test_acc, "epoch": epoch})
+            
+            if(args.log):
+                wandb.log({"train_acc": acc, "test_acc": test_acc, "epoch": epoch})
 
             if args.scheduler == "step":
                 scheduler.step()
@@ -181,12 +184,12 @@ def main():
     print("Best model saved.")
 
     total_time = time.time() - start_time
-    wandb.log({"total_training_time": total_time})
-
-    wandb.summary["final_test_acc"] = test_acc
-    wandb.summary["final_train_acc"] = acc
-    wandb.summary["total_time"] = total_time
-    wandb.finish()
+    if(args.log):
+        wandb.log({"total_training_time": total_time})
+        wandb.summary["final_test_acc"] = test_acc
+        wandb.summary["final_train_acc"] = acc
+        wandb.summary["total_time"] = total_time
+        wandb.finish()
 
 
 if __name__ == "__main__":
