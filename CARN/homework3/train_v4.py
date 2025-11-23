@@ -111,7 +111,7 @@ def main():
     parser.add_argument("--early_stop", type=int, default=5)
     parser.add_argument("--log", type=int, default=1, choices=[0,1])
 
-    args = parser.parse_args([])
+    args = parser.parse_args()
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print("Using:", device)
 
@@ -194,3 +194,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
